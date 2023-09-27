@@ -4,17 +4,10 @@ import DisplayWidget from "./DisplayWidget";
 
 const WidgetBox: React.FunctionComponent<{
   displayText: DisplayText;
-  currentSearch: SearchBar;
-  updateSearch: (e: SearchBar) => void;
+  addToSearch: (e: BaseElement) => void;
 }> = (p) => {
-  function newSearch(c: BaseElement) {
-    const newSearch: SearchBar = p.currentSearch;
-    newSearch.push(c);
-    return newSearch;
-  }
-
   const body = p.displayText.map((c, i) => {
-    const events = { onClick: () => p.updateSearch(newSearch(c)) };
+    const events = { onClick: () => p.addToSearch(c) };
     return (
       <DisplayWidget
         content={c.getContent().phoneme}

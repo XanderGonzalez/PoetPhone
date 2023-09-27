@@ -1,9 +1,12 @@
 import * as React from 'react';
 
 const SearchDisplay: React.FunctionComponent<{
-  count: number;
-}> = (props) => {
-  return <h1>{props.count}</h1>;
+}> = (p) => {
+  return (
+		<div className='search-display'>
+		search display
+		</div>
+	);
 };
 
 export default SearchDisplay;

@@ -1,11 +1,10 @@
 import * as React from "react";
-import { SearchBar, DisplayText } from "./header";
+import { SearchBar, DisplayText, BaseElement } from "./header";
 import WidgetBox from "./WidgetBox";
 
 const PhonemeDisplay: React.FunctionComponent<{
   displayText: DisplayText;
-  currentSearch: SearchBar;
-  updateSearch: (e: SearchBar) => void;
+  addToSearch: (e: BaseElement) => void;
 }> = (p) => {
   return (
     <div className="phoneme-display">

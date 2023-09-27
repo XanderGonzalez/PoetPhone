@@ -10,7 +10,7 @@ type ColorGradient = {
 
 export type Color = ColorGradient | undefined;
 
-type ContentArray = Array<SearchElement>;
+export type ContentArray = Array<SearchElement>;
 
 export type BaseContent = SearchWidget;
 
@@ -51,7 +51,7 @@ interface AndOrElementInterface extends SearchElement {
   //removeElement(e: SearchElement): Content;
 }
 
-export interface SearchBar extends ContentArray {};
+export type SearchBar = ContentArray;
 
 export interface DisplayText extends Array<BaseElement> {};
 

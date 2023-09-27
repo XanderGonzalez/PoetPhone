@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 import {
   SearchBar,
@@ -8,6 +8,7 @@ import {
 } from "./components/header";
 import TextInputContainer from "./components/TextInputContainer";
 import PhonemeDisplayContainer from "./components/PhonemeDisplayContainer";
+import SearchBoxContainer from './components/SearchBoxContainer';
 
 function App() {
   const [currentSearch, setCurrentSearch] = useState<SearchBar>([]);
@@ -22,6 +23,15 @@ function App() {
     //console.log(displayText);
   }
 
+  function addToSearch(e: BaseElement) : void {
+    const newSearch = currentSearch;
+    newSearch.push(e);
+    setCurrentSearch(newSearch);
+    setDisplayText([]);
+    //updatePhonemeDisplay()
+    //console.log(currentSearch);
+  }
+
   return (
     <div className="App-header">
       <TextInputContainer
@@ -30,8 +40,11 @@ function App() {
       />
       <PhonemeDisplayContainer
         displayText={displayText}
+        addToSearch={addToSearch}
+      />
+      <SearchBoxContainer
         currentSearch={currentSearch}
-        updateSearch={setCurrentSearch}
+        setCurrentSearch={e => setCurrentSearch(e)}
       />
     </div>
   );

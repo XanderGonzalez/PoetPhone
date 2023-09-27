@@ -1,17 +1,16 @@
-import * as React from 'react';
-import { SearchBar, DisplayText } from "./header";
-import PhonemeDisplay from './PhonemeDisplay';
+import * as React from "react";
+import { SearchBar, DisplayText, BaseElement } from "./header";
+import PhonemeDisplay from "./PhonemeDisplay";
 
 const PhonemeDisplayContainer: React.FunctionComponent<{
   displayText: DisplayText;
-  currentSearch: SearchBar;
-  updateSearch: (e: SearchBar) => void;
+  addToSearch: (e: BaseElement) => void;
 }> = (p) => {
-    return (
-		<div className='phoneme-display-container'>
-			<PhonemeDisplay {...p} />
-		</div>
-	);
+  return (
+    <div className="phoneme-display-container">
+      <PhonemeDisplay {...p} />
+    </div>
+  );
 };
 
 export default PhonemeDisplayContainer;
