@@ -3,13 +3,10 @@ import { SearchBar } from "./header";
 import SearchBarElem from "./SearchBarElem";
 import SearchDisplay from "./SearchDisplay";
 
-const SearchBox: React.FunctionComponent<{
-  currentSearch: SearchBar;
-  setCurrentSearch: (e: SearchBar) => void;
-}> = (p) => {
+const SearchBox: React.FunctionComponent<{}> = () => {
   return (
     <div className="search-box">
-      <SearchBarElem {...p} />
+      <SearchBarElem />
       <br />
       <SearchDisplay />
     </div>

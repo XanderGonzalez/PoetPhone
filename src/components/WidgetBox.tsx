@@ -1,24 +1,20 @@
-import * as React from "react";
-import { SearchBar, DisplayText, BaseElement } from "./header";
+import React, { useContext } from "react";
+import { GlobalContext } from "../App";
 import DisplayWidget from "./DisplayWidget";
 
-const WidgetBox: React.FunctionComponent<{
-  displayText: DisplayText;
-  addToSearch: (e: BaseElement) => void;
-}> = (p) => {
-  const body = p.displayText.map((c, i) => {
-    const events = { onClick: () => p.addToSearch(c) };
+const WidgetBox: React.FunctionComponent<{}> = () => {
+  const g = useContext(GlobalContext);
+  const body = g.display.get.map((c, i) => {
     return (
       <DisplayWidget
         content={c.getContent().phoneme}
         color={c.getContent().color}
         cursor="pointer"
-        events={events}
+        eventType="display"
         key={i}
       />
     );
   });
-
   return <div className="widget-box">{body}</div>;
 };
 

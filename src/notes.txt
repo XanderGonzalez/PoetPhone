@@ -1,0 +1,22 @@
+Infinite loop in SearchElem during base element condition.
+    is displaywidget called Infinitly?
+        put breakpoint in displaywidget
+        put comment
+    no it's not. it's called normally at first and then loop happens in SearchElem
+
+    is problem in how SearchElem is called in and element condition?
+        return statement in SearchElem returns correct number of times, many displaywidgets
+
+    got rid of if statement in useEffect, seems to work
+
+And object algo:
+    Forgo last base element, iterate over or and base elements and give each base element it's own key
+
+    Get number of base elements, fill retArr with connectors.
+
+    split:
+        Iterate over base elements, reduce or elements to bases, once split index is
+        reached take or element and use it's addAnd function
+
+Todo: make right positions a global variable. in search bar element, count number of
+base elements and create new refs that forward to SearchElems. 

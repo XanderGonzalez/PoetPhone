@@ -1,52 +1,71 @@
 import * as React from "react";
-import { useState, useRef, useEffect } from "react";
+import { GlobalContext } from "../App";
+import { useState, useRef, useEffect, useContext } from "react";
 import { SearchBar } from "./header";
 import SearchElem from "./SearchElem";
-import { useDrag } from 'react-dnd'
+import { useDrag } from "react-dnd";
 import EmptyWidgetConnector from "./EmptyWidgetConnector";
 
-const SearchBarElem: React.FunctionComponent<{
-  currentSearch: SearchBar;
-  setCurrentSearch: (e: SearchBar) => void;
-}> = (p) => {
-  const connectorNum = p.currentSearch.length - 1;
-  const refArray = useRef<(HTMLSpanElement | null)[]>([]);
+const SearchBarElem: React.FunctionComponent<{}> = () => {
+  const g = useContext(GlobalContext);
+  const SBarRefArray = useRef<(HTMLSpanElement | null)[]>([]);
+  const SElemRefArray = useRef<(HTMLSpanElement | null)[]>([]);
   const [centers, setCenters] = useState<number[]>([]);
-  const [rightPos, setRightPos] = useState<number[]>([]);
+  //const [rightPos, setRightPos] = useState<number[]>([]);
+  let baseCount: number[] = [];
 
   useEffect(() => {
-    console.log('search bar test');
+    //count number of bases
+    baseCount = [0];
+    let ind = 0;
+    g.search.get.map((c) => {
+      ind += c.getBaseCount();
+      baseCount.push(ind);
+    });
+    baseCount.push(ind);
     const newCenters: number[] = [];
     const newRights: number[] = [];
-    refArray.current.map((el) => {
+    SBarRefArray.current.map((el) => {
       if (el !== null) {
         newCenters.push(el.offsetWidth / 2 + el.offsetLeft);
+      }
+    });
+    SElemRefArray.current.map((el) => {
+      if (el !== null) {
         newRights.push(el.offsetWidth + el.offsetLeft);
       }
     });
     setCenters(newCenters);
-    setRightPos(newRights.slice(0, -1));
-  }, [p.currentSearch]);
+    g.rightPos.set(newRights.slice(0, -1));
+    console.log("Search");
+    console.log(g.search.get);
+    console.log(SBarRefArray);
+    console.log(SElemRefArray);
+  }, [g.search.get]);
 
-  const body = p.currentSearch.map((searchElement, i) => {
+  const body = g.search.get.map((searchElement, i) => {
+    //let r = React.createRef<(HTMLSpanElement | null)[]>;
+    //r. = SElemRefArray.current.slice(baseCount[i], baseCount[i + 1]);
+    //SElemRefArray.current.push(...er.current);
     return (
-      <span ref={(e) => (refArray.current[i] = e)} key={i}>
+      <span ref={(e) => (SBarRefArray.current[i] = e)} key={i}>
         <SearchElem
           content={searchElement}
-          {...p}
           key={i}
           pKey={i}
           centers={centers}
-          rightPos={rightPos}
+          noConnector={false}
+          start={baseCount[i]}
+          end={baseCount[i+1]}
+          //ref={(e) => SElemRefArray.current.push(...e)}
+          ref={SElemRefArray}
+          //.map((e) => {return e})}
         />
       </span>
     );
   });
 
-  const connector =
-    connectorNum > 0 ? (
-      <EmptyWidgetConnector rightPos={rightPos} {...p} />
-    ) : null;
+  const connector = g.search.get.length > 1 ? <EmptyWidgetConnector /> : null;
 
   return (
     <div className="search-bar">

@@ -1,13 +1,30 @@
 import * as React from "react";
-import { Color } from "./header";
+import { BaseElement, Color, ContentArray } from "./header";
+import { GlobalContext } from "../App";
+import { useContext } from "react";
 
 const DisplayWidget: React.FunctionComponent<{
   content: String;
   color: Color;
   cursor: String;
-  events: { onClick: () => void };
-  key: number;
+  eventType: "display" | "search";
 }> = (p) => {
+  console.log('dp test');
+  const g = useContext(GlobalContext);
+  const BE = new BaseElement({ phoneme: p.content, color: p.color });
+  let onClickE: any = null;
+  const addToSearch = (c: BaseElement): ContentArray => {
+    const currentSearch: ContentArray = [...g.search.get];
+    currentSearch.push(c);
+    return currentSearch;
+  };
+
+  if (p.eventType === "display") {
+    onClickE = () => g.search.set(addToSearch(BE));
+  } else {
+
+  }
+
   switch (p.content) {
     case " ":
       return <span className="display-widget-space"></span>;
@@ -19,7 +36,7 @@ const DisplayWidget: React.FunctionComponent<{
           <div
             className="display-widget"
             style={{ backgroundColor: "white", cursor: String(p.cursor) }}
-            {...p.events}
+            onClick={onClickE}
           >
             {p.content}
           </div>
@@ -33,7 +50,7 @@ const DisplayWidget: React.FunctionComponent<{
               "linear-gradient(" + p.color.color1 + ", " + p.color.color2 + ")",
             cursor: String(p.cursor),
           }}
-          {...p.events}
+          onClick={onClickE}
         >
           {p.content}
         </div>

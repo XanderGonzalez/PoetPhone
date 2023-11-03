@@ -1,20 +1,20 @@
-import * as React from "react";
-import { SearchBar, BaseElement } from "./header";
+import React, { useContext } from "react";
+import { GlobalContext } from "../App";
+import { SearchBar, BaseElement, GlobalState, ContentArray } from "./header";
 
 const EmptyWidgetConnector: React.FunctionComponent<{
-  currentSearch: SearchBar;
-  setCurrentSearch: (e: SearchBar) => void;
-  rightPos: number[];
-}> = (p) => {
-  function addOr(i: number) {
-    const newSearch: SearchBar = [];
-    newSearch.push(...p.currentSearch.slice(0, i - 1));
-    newSearch.push(p.currentSearch[i].acceptOr(p.currentSearch[i + 1]));
-    newSearch.push(...p.currentSearch.slice(i + 1));
-    p.setCurrentSearch(newSearch);
-  }
-
-  const body = p.rightPos.map((c, i) => {
+}> = () => {
+  const g = useContext(GlobalContext);
+  const addOr = (i: number) => {
+    const newSearch: ContentArray = [];
+    const s = g.search.get;
+    newSearch.push(...s.slice(0, i));
+    newSearch.push(s[i].accept(s[i + 1]));
+    newSearch.push(...s.slice(i + 2));
+    g.search.set(newSearch);
+  };
+  console.log(g.rightPos.get);
+  const body = g.rightPos.get.map((c, i) => {
     return (
       <div
         className="widget-connector"
@@ -24,7 +24,7 @@ const EmptyWidgetConnector: React.FunctionComponent<{
       ></div>
     );
   });
-  return(<>{body}</>);
+  return <>{body}</>;
 };
 
 export default EmptyWidgetConnector;

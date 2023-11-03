@@ -16,6 +16,8 @@ export type BaseContent = SearchWidget;
 
 type Content = ContentArray | BaseContent | null;
 
+//export type gCenters = Array<Array<number>>;
+
 interface DisplayWidget {
   phoneme: String;
   color: Color;
@@ -33,7 +35,8 @@ export interface SearchElement {
   acceptOr(e: SearchElement): SearchElement;
   acceptBase(e: SearchElement): SearchElement;
   accept(e: SearchElement): SearchElement;
-  addAndConnection(i: any): any;
+  //addAndConnection(i: any): any;
+  getBaseCount(): number;
 }
 
 interface BaseElementInterface extends SearchElement {
@@ -43,23 +46,76 @@ interface BaseElementInterface extends SearchElement {
   //removeElement(e: SearchElement): null;
 }
 
-interface AndOrElementInterface extends SearchElement {
+export interface AndOrElementInterface extends SearchElement {
   readonly content: ContentArray;
   setContent(e: ContentArray): void;
   getContent(): ContentArray;
   addAndConnection(i: Number): SearchElement;
-  //removeElement(e: SearchElement): Content;
+  //removeConnection(i: Number): ContentArray;
 }
 
-export type SearchBar = ContentArray;
+export class SearchBar {
+  constructor(content: ContentArray) {
+    this.content = content;
+  }
+  content: ContentArray;
+  getContent(): ContentArray {
+    return this.content;
+  }
+  getBaseCount(): number {
+    let ret = 0;
+    this.content.map((c) => {
+      ret += c.getBaseCount();
+    });
+    return ret;
+  }
+}
 
-export interface DisplayText extends Array<BaseElement> {};
+export interface DisplayText extends Array<BaseElement> {}
+
+export type GlobalState = {
+  search: {
+    get: ContentArray;
+    set: (e: ContentArray) => void;
+  };
+  display: {
+    get: DisplayText;
+    set: (e: DisplayText) => void;
+  };
+  user: {
+    get: string;
+    set: (e: string) => void;
+  };
+  rightPos: {
+    get: number[];
+    set: (e: number[]) => void;
+  };
+};
+
+export const baseGlobalState: GlobalState = {
+  search: {
+    get: [],
+    set: (e: ContentArray) => {},
+  },
+  display: {
+    get: [],
+    set: (e: DisplayText) => {},
+  },
+  user: {
+    get: "",
+    set: (e: string) => {},
+  },
+  rightPos: {
+    get: [],
+    set: (e: number[]) => {},
+  },
+};
 
 function orOrBase(e: ContentArray): SearchElement {
   if (e.length === 1) {
     return new BaseElement(e[0].getContent());
   } else {
-    return new OrElement(e.map((c) => c.getContent()));
+    return new OrElement(e.map((c) => new BaseElement(c.getContent())));
   }
 }
 
@@ -90,9 +146,9 @@ export class BaseElement implements BaseElementInterface {
   }
   accept(e: SearchElement): SearchElement {
     if (e.getElementType() === "and") {
-      return this.acceptAnd(e);
+      return this.acceptAnd(e as AndOrElementInterface);
     } else if (e.getElementType() === "or") {
-      return this.acceptOr(e);
+      return this.acceptOr(e as AndOrElementInterface);
     } else {
       return this.acceptBase(e);
     }
@@ -106,12 +162,12 @@ export class BaseElement implements BaseElementInterface {
   getElementType(): ElementType {
     return this.elementType;
   }
-  addAndConnection(i: any) {
-    return null;
+  getBaseCount(): number {
+    return 1;
   }
 }
 
-class OrElement implements AndOrElementInterface {
+export class OrElement implements AndOrElementInterface {
   constructor(content: ContentArray) {
     this.content = content;
     this.elementType = "or";
@@ -139,9 +195,9 @@ class OrElement implements AndOrElementInterface {
   }
   accept(e: SearchElement): SearchElement {
     if (e.getElementType() === "and") {
-      return this.acceptAnd(e);
+      return this.acceptAnd(e as AndOrElementInterface);
     } else if (e.getElementType() === "or") {
-      return this.acceptOr(e);
+      return this.acceptOr(e as AndOrElementInterface);
     } else {
       return this.acceptBase(e);
     }
@@ -149,12 +205,20 @@ class OrElement implements AndOrElementInterface {
   addAndConnection(i: number): SearchElement {
     const returnArray: ContentArray = [];
     const or0: ContentArray = this.getContent();
-    const or1 = orOrBase(or0.slice(0, i));
-    const or2 = orOrBase(or0.slice(i));
+    const or1 = orOrBase(or0.slice(0, i + 1));
+    const or2 = orOrBase(or0.slice(i + 1));
+    console.log("or0");
+    console.log(or0);
+    console.log("or1");
+    console.log(or1);
+    console.log("or2");
+    console.log(or2);
     returnArray.push(or1);
     returnArray.push(or2);
+    console.log(returnArray);
     return new AndElement(returnArray);
   }
+  //removeConnection(i: Number): ContentArray {}
   setContent(e: ContentArray): void {
     this.content = e;
   }
@@ -164,9 +228,12 @@ class OrElement implements AndOrElementInterface {
   getElementType(): ElementType {
     return this.elementType;
   }
+  getBaseCount(): number {
+    return this.getContent().length;
+  }
 }
 
-class AndElement implements AndOrElementInterface {
+export class AndElement implements AndOrElementInterface {
   constructor(content: ContentArray) {
     this.content = content;
     this.elementType = "and";
@@ -211,37 +278,63 @@ class AndElement implements AndOrElementInterface {
     returnArray.push(or0.accept(ca1));
     return new AndElement(returnArray);
   }
-  addAndConnection(i: number): SearchElement {
-    let j = 0;
-    let iLen = 0;
-    let modEl: SearchElement = new BaseElement({
-      phoneme: "",
-      color: { color1: "", color2: "" },
-    });
-    while (iLen < i) {
-      modEl = this.getContent()[j];
-      j++;
-      iLen += modEl.getContent().length;
-    }
-    const returnArray: ContentArray = [];
-    const or0: ContentArray = [];
-    j = i - iLen;
-    or0.push(modEl.getContent().split());
-    const or1 = orOrBase(or0.slice(0, j));
-    const or2 = orOrBase(or0.slice(j));
-    returnArray.push(or1);
-    returnArray.push(or2);
-    return new AndElement(returnArray);
-  }
   accept(e: SearchElement): SearchElement {
     if (e.getElementType() === "and") {
-      return this.acceptAnd(e);
+      return this.acceptAnd(e as AndOrElementInterface);
     } else if (e.getElementType() === "or") {
-      return this.acceptOr(e);
+      return this.acceptOr(e as AndOrElementInterface);
     } else {
       return this.acceptBase(e);
     }
   }
+  addAndConnection(i: number): SearchElement {
+    //console.log("andAnd");
+    //let j = 0;
+    //let iLen = 0;
+    //let modEl: SearchElement = new BaseElement({
+    //  phoneme: "",
+    //  color: { color1: "", color2: "" },
+    //});
+    //while (iLen < i) {
+    //  modEl = this.getContent()[j];
+    //  j++;
+    //  iLen += modEl.getContent().length;
+    //}
+    //const returnArray: ContentArray = [];
+    //const or0: ContentArray = [];
+    //j = i - iLen;
+    //or0.push(modEl.getContent().split());
+    //const or1 = orOrBase(or0.slice(0, j));
+    //const or2 = orOrBase(or0.slice(j));
+    //console.log("test1");
+    //console.log(or1);
+    //console.log("test2");
+    //console.log(or2);
+    //returnArray.push(or1);
+    //returnArray.push(or2);
+    //return new AndElement(returnArray);
+
+    const returnArray: ContentArray = [];
+    let ind = 0;
+    this.getContent().map((cb) => {
+      const c = cb as AndOrElementInterface;
+      if (c.getElementType() === "or") {
+        //break into base elements
+        const orLen = c.getContent().length;
+        if (i - ind < orLen) {
+          returnArray.push(...c.addAndConnection(i - ind).getContent());
+        } else {
+          returnArray.push(c);
+          ind += orLen;
+        }
+      } else {
+        returnArray.push(c);
+        ind++;
+      }
+    });
+    return new AndElement(returnArray);
+  }
+  //removeConnection(i: Number): ContentArray {}
   setContent(e: ContentArray): void {
     this.content = e;
   }
@@ -251,9 +344,14 @@ class AndElement implements AndOrElementInterface {
   getElementType(): ElementType {
     return this.elementType;
   }
+  getBaseCount(): number {
+    let ret = 0;
+    this.getContent().map((c) => {
+      ret += c.getBaseCount();
+    });
+    return ret;
+  }
 }
-
-export default { BaseElement, OrElement, AndElement };
 
 //async function main() {
 //const test = new BaseElement({phoneme: 'a', color: {color1: '', color2: ''}});

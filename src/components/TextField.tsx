@@ -1,8 +1,8 @@
-import * as React from "react";
+import React, { useContext } from "react";
+import { GlobalContext } from "../App";
 
-const TextField: React.FunctionComponent<{
-  setUserText: (e: string) => void;
-}> = (p) => {
+const TextField: React.FunctionComponent<{}> = () => {
+  const g = useContext(GlobalContext);
   return (
     <div className="text-field-container">
       <div className="text-field-box">
@@ -10,7 +10,7 @@ const TextField: React.FunctionComponent<{
           autoFocus
           className="text-field"
           wrap="off"
-          onChange={(e) => p.setUserText(e.target.value)}
+          onChange={(e) => g.user.set(e.target.value)}
           placeholder="click here to enter text"
         ></textarea>
       </div>
